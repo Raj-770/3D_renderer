@@ -6,7 +6,20 @@
 #include <set>
 #include <iostream>
 
+/**
+ * @brief Function to load and store data from the obj file and extract edges.
+ * 
+ * @param filename .obj filename
+ * @return true 
+ * @return false 
+ */
 bool ObjParser::load(const std::string& filename) {
+    size_t lastDot = filename.find_last_of('.');
+    if (lastDot == std::string::npos || filename.substr(lastDot) != ".obj") {
+        std::cerr << "Error: File must have .obj extension. Provided: " << filename << std::endl;
+        return false;
+    }
+
     std::ifstream infile(filename);
     if (!infile) return false;
 
@@ -46,6 +59,13 @@ bool ObjParser::load(const std::string& filename) {
     return true;
 }
 
+/**
+ * @brief Checks wether a vertex line has three floating point coordinates.
+ * 
+ * @param tokens 
+ * @return true 
+ * @return false when the token is anything other than a float
+ */
 bool ObjParser::validate_vertex(const std::vector<std::string> tokens) {
     if (tokens.size() != 3) return false;
     try {
@@ -58,7 +78,18 @@ bool ObjParser::validate_vertex(const std::vector<std::string> tokens) {
     }
 }
 
+/**
+ * @brief checks if the face line has at least three interger indices and no other characters.
+ * 
+ * @param tokens 
+ * @return true if valid
+ * @return false if not valid
+ */
 bool ObjParser::validate_face(const std::vector<std::string> tokens) {
+    if (tokens.size() < 3) {
+        return false;
+    }
+
     for (const auto& token : tokens) {
         const auto slash = token.find('/');
         std::string idx = (slash == std::string::npos) ? token : token.substr(0, slash);
@@ -68,6 +99,13 @@ bool ObjParser::validate_face(const std::vector<std::string> tokens) {
     return true;
 }
 
+/**
+ * @brief simply checks if the indices in the face exist. 
+ * 
+ * @param indices 
+ * @return true 
+ * @return false 
+ */
 bool ObjParser::is_valid_face_indices(const std::vector<int>& indices) {
     for (int idx : indices) {
         if (idx < 0 || idx >= static_cast<int>(vertices.size())) {
@@ -77,6 +115,10 @@ bool ObjParser::is_valid_face_indices(const std::vector<int>& indices) {
     return true;
 }
 
+/**
+ * @brief find al unique edges using set and store them in the edges variable
+ * 
+ */
 void ObjParser::extract_edges() {
     edges.clear();
     std::set<std::pair<int, int>> uniqueEdges;
