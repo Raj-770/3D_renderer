@@ -4,7 +4,7 @@
 TARGET = WireframeRenderer
 BUILD_DIR = build
 
-.PHONY: all clean fclean
+.PHONY: all clean fclean re
 
 all: $(TARGET)
 
@@ -22,3 +22,6 @@ clean:
 fclean: clean
 	@echo "Removing executable..."
 	@rm -f $(TARGET)
+
+re: fclean all
+	@echo "Remaking..."
