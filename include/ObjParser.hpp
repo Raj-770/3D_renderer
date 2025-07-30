@@ -17,4 +17,9 @@ public:
     std::vector<Face> faces;
 
     bool load(const std::string& filename);
+
+private:
+    bool validate_vertex(const std::vector<std::string> tokens);
+    bool validate_face(const std::vector<std::string> tokens);
+    
 };

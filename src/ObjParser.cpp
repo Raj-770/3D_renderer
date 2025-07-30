@@ -4,37 +4,58 @@
 #include <sstream>
 
 bool ObjParser::load(const std::string& filename) {
-    // Generating a stream of the obj file
     std::ifstream infile(filename);
-    if (!infile)
-        return false;
-    
-    std::string line;
-    
-    // Processing the file line by line
-    while(std::getline(infile, line)) {
-        // Creating a string stream of the line.
-        std::istringstream iss(line);
+    if (!infile) return false;
 
-        // Putting everything before the first space into prefix (v or f)
+    std::string line;
+    while (std::getline(infile, line)) {
+        std::istringstream iss(line);
         std::string prefix;
         iss >> prefix;
 
-        // Storing the data according to its prefix (type)
         if (prefix == "v") {
-            float x, y, z;
-            iss >> x >> y >> z;
-            vertices.push_back({x, y, z});
-        } else if (prefix == "f") {
-            Face face;
-            std::string vert;
-            while (iss >> vert) {
-                size_t slash = vert.find('/');
-                int idx = std::stoi(vert.substr(0, slash)) - 1;
-                face.vertex_indices.push_back(idx);
+            std::vector<std::string> tokens;
+            std::string temp;
+            while (iss >> temp) tokens.push_back(temp);
+            if (validate_vertex(tokens)) {
+                vertices.push_back({std::stof(tokens[0]), std::stof(tokens[1]), std::stof(tokens[2])});
             }
-            faces.push_back(face);
+        } else if (prefix == "f") {
+            std::vector<std::string> tokens;
+            std::string temp;
+            while (iss >> temp) tokens.push_back(temp);
+            if (validate_face(tokens)) {
+                Face face;
+                for (const auto& vert : tokens) {
+                    size_t slash = vert.find('/');
+                    int idx = std::stoi(vert.substr(0, slash)) - 1;
+                    face.vertex_indices.push_back(idx);
+                }
+                faces.push_back(face);
+            }
         }
+    }
+    return true;
+}
+
+bool ObjParser::validate_vertex(const std::vector<std::string> tokens) {
+    if (tokens.size() != 3) return false;
+    try {
+        for (const auto& t : tokens) {
+            std::stof(t);
+        }
+        return true;
+    } catch (...) {
+        return false;
+    }
+}
+
+bool ObjParser::validate_face(const std::vector<std::string> tokens) {
+    for (const auto& token : tokens) {
+        const auto slash = token.find('/');
+        std::string idx = (slash == std::string::npos) ? token : token.substr(0, slash);
+        if (idx.empty() || idx.find_first_not_of("0123456789") != std::string::npos)
+            return false;
     }
     return true;
 }

@@ -8,7 +8,7 @@ int main(int argc, char **argv) {
     
     ObjParser parser;
     if (parser.load(argv[1])) {
-        std::cout << "Loaded" << parser.vertices.size() << "vertices and " << parser.faces.size() << " faces." << std::endl;
+        std::cout << "Loaded " << parser.vertices.size() << " vertices and " << parser.faces.size() << " faces." << std::endl;
     } else {
         std::cerr << "Failed to load OBJ file." << std::endl; 
     }
