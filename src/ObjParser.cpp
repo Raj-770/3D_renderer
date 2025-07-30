@@ -2,6 +2,9 @@
 
 #include <fstream>
 #include <sstream>
+#include <algorithm>
+#include <set>
+#include <iostream>
 
 bool ObjParser::load(const std::string& filename) {
     std::ifstream infile(filename);
@@ -31,10 +34,15 @@ bool ObjParser::load(const std::string& filename) {
                     int idx = std::stoi(vert.substr(0, slash)) - 1;
                     face.vertex_indices.push_back(idx);
                 }
-                faces.push_back(face);
+                if (is_valid_face_indices(face.vertex_indices)) {
+                    faces.push_back(face);
+                } else {
+                    std::cerr << "Warning: Face references nonexistent vertex in line: " << line << std::endl;
+                }
             }
         }
     }
+    extract_edges();
     return true;
 }
 
@@ -59,3 +67,34 @@ bool ObjParser::validate_face(const std::vector<std::string> tokens) {
     }
     return true;
 }
+
+bool ObjParser::is_valid_face_indices(const std::vector<int>& indices) {
+    for (int idx : indices) {
+        if (idx < 0 || idx >= static_cast<int>(vertices.size())) {
+            return false;
+        }
+    }
+    return true;
+}
+
+void ObjParser::extract_edges() {
+    edges.clear();
+    std::set<std::pair<int, int>> uniqueEdges;
+
+    for (const auto& face : faces) {
+        int n = face.vertex_indices.size();
+        for (int i = 0; i < n; ++i) {
+            int v1 = face.vertex_indices[i];
+            int v2 = face.vertex_indices[(i + 1) % n];
+            // Store edges in sorted order to avoid duplicates (1,3) == (3,1)
+            int minV = std::min(v1, v2);
+            int maxV = std::max(v1, v2);
+            uniqueEdges.insert({minV, maxV});
+        }
+    }
+
+    for (const auto& e : uniqueEdges) {
+        edges.push_back(e);
+    }
+}
+
