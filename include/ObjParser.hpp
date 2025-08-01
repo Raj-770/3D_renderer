@@ -3,10 +3,7 @@
 #include <string>
 #include <vector>
 #include <utility>
-
-struct Vec3 {
-    float x, y, z;
-};
+#include <glm/glm.hpp>
 
 struct Face {
     std::vector<int> vertex_indices;
@@ -14,7 +11,7 @@ struct Face {
 
 class ObjParser {
 public:
-    std::vector<Vec3> vertices;
+    std::vector<glm::vec3> vertices;
     std::vector<Face> faces;
     std::vector<std::pair<int, int>> edges;
 

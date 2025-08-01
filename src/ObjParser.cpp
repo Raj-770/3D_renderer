@@ -34,7 +34,7 @@ bool ObjParser::load(const std::string& filename) {
             std::string temp;
             while (iss >> temp) tokens.push_back(temp);
             if (validate_vertex(tokens)) {
-                vertices.push_back({std::stof(tokens[0]), std::stof(tokens[1]), std::stof(tokens[2])});
+                vertices.push_back(glm::vec3(std::stof(tokens[0]), std::stof(tokens[1]), std::stof(tokens[2])));
             }
         } else if (prefix == "f") {
             std::vector<std::string> tokens;
