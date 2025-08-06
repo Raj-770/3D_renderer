@@ -10,7 +10,7 @@ find_package(glfw3 3.3 REQUIRED)
 find_library(OpenGL_LIBRARY OpenGL)
 
 file(GLOB SOURCES "src/*.cpp")
-add_executable(WireframeRenderer ${SOURCES})
+add_executable(WireframeRenderer ${SOURCES} src/glad.c)
 
 target_include_directories(WireframeRenderer PRIVATE include)
 
