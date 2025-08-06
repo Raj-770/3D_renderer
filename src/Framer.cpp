@@ -6,11 +6,31 @@
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
 
+/**
+ * @brief Entry point and render loop for the 3D wireframe viewer application.
+ *
+ * This file contains setup routines for the OpenGL context, GLFW initialization, mesh loading,
+ * shader compilation, and the rendering main loop. It connects all key graphics components and
+ * allows for dynamic window resizing.
+ */
+
+
 const unsigned int WINDOW_WIDTH = 800;
 const unsigned int WINDOW_HEIGHT = 600;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
+/**
+ * @brief Initializes OpenGL, loads scene data, sets up rendering objects, and runs the main render loop.
+ *
+ * Creates the OpenGL context and window, loads vertex and edge data from the provided ObjParser,
+ * compiles shaders, constructs for the mesh, transformation matrices, and renderer. Handles
+ * window resizing and entire application lifecycle.
+ *
+ * @param parser Parsed OBJ mesh source containing vertices and edges.
+ * @param windowTitle The title for the application window.
+ * @return Exit code: 0 on success, negative on error.
+ */
 int runRenderer(const ObjParser& parser, const std::string& windowTitle) {
     if (!glfwInit()) {
         std::cerr << "Failed to initialize GLFW.\n";
@@ -61,6 +81,13 @@ int runRenderer(const ObjParser& parser, const std::string& windowTitle) {
     return 0;
 }
 
+/**
+ * @brief GLFW callback for updating the viewport and renderer state on window resize.
+ *
+ * @param window Pointer to the GLFW window.
+ * @param width New framebuffer width.
+ * @param height New framebuffer height.
+ */
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
     void* ptr = glfwGetWindowUserPointer(window);
     if (ptr) {
