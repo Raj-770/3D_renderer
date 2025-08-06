@@ -1,19 +1,18 @@
 # Makefile for WireframeRenderer project
 
-# Target executable
 TARGET = WireframeRenderer
 BUILD_DIR = build
 
 .PHONY: all clean fclean re
 
-all: $(TARGET)
-
-# Build the executable by configuring & compiling in $(BUILD_DIR)
-$(TARGET):
-	@echo "Compiling..."
+all:
+	@echo "Building using CMake..."
 	@mkdir -p $(BUILD_DIR)
-	@cd $(BUILD_DIR) && cmake .. && make
+	@cd $(BUILD_DIR) && cmake .. 
+	@cd $(BUILD_DIR) && make
 	@cp $(BUILD_DIR)/$(TARGET) .
+
+$(TARGET): all
 
 clean:
 	@echo "Cleaning build directory..."
