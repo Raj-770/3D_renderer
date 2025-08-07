@@ -3,6 +3,7 @@
 #include "Mesh.hpp"
 #include "Shader.hpp"
 #include "Renderer.hpp"
+#include "InputHandler.hpp"
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
 
@@ -15,8 +16,8 @@
  */
 
 
-const unsigned int WINDOW_WIDTH = 800;
-const unsigned int WINDOW_HEIGHT = 600;
+const unsigned int WINDOW_WIDTH = 1200;
+const unsigned int WINDOW_HEIGHT = 800;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
@@ -61,17 +62,21 @@ int runRenderer(const ObjParser& parser, const std::string& windowTitle) {
     ModelMatrix modelMatrix;
     modelMatrix.setTranslation(glm::vec3(0.0f, 0.0f, 0.0f));
     modelMatrix.setRotation(0.0f, glm::vec3(0,1,0));
-    modelMatrix.setScale(glm::vec3(1.0f,1.0f,1.0f));
+    modelMatrix.setScale(glm::vec3(0.1f,0.1f,0.1f));
 
     ViewMatrix viewMatrix;
     viewMatrix.setCamera(glm::vec3(0,0,10), glm::vec3(0,0,0), glm::vec3(0,1,0));
+
+    InputHandler inputHandler(window, viewMatrix);
+    inputHandler.registerCallbacks();
 
     ProjectionMatrix projectionMatrix;
     float aspect = static_cast<float>(WINDOW_WIDTH) / static_cast<float>(WINDOW_HEIGHT);
     projectionMatrix.setPerspective(45.0f, aspect, 0.1f, 100.0f);
 
     Renderer renderer(window, mesh, shader, modelMatrix, viewMatrix, projectionMatrix);
-    glfwSetWindowUserPointer(window, &renderer);
+    AppContext context{&renderer, &inputHandler};
+    glfwSetWindowUserPointer(window, &context);
 
     while (!glfwWindowShouldClose(window)) {
         renderer.renderFrame();
@@ -91,7 +96,10 @@ int runRenderer(const ObjParser& parser, const std::string& windowTitle) {
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
     void* ptr = glfwGetWindowUserPointer(window);
     if (ptr) {
-        static_cast<Renderer*>(ptr)->onWindowResize(width, height);
+        auto context = static_cast<AppContext*>(ptr);
+        if (context->renderer) {
+            context->renderer->onWindowResize(width, height);
+        }
     } else {
         glViewport(0, 0, width, height);
     }
