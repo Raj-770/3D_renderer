@@ -46,7 +46,7 @@ void InputHandler::handleCursorPos(double xpos, double ypos) {
     float yoffset = static_cast<float>(ypos - lastY_);
     lastX_ = xpos; lastY_ = ypos;
 
-    float sensitivity = 0.2f;
+    float sensitivity = 0.25f;
     yaw += xoffset * sensitivity;
     pitch += yoffset * sensitivity;
     if (pitch > 89.0f) pitch = 89.0f;
@@ -65,7 +65,8 @@ void InputHandler::handleMouseButton(int button, int action, int /*mods*/) {
 }
 
 void InputHandler::handleScroll(double /*xoffset*/, double yoffset) {
-    distance -= static_cast<float>(yoffset);
+    float zoomSensitivity = 0.1f;
+    distance -= static_cast<float>(yoffset) * zoomSensitivity;
     if (distance < 1.0f) distance = 1.0f;
     if (distance > 100.0f) distance = 100.0f;
 
