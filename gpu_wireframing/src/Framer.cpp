@@ -57,7 +57,7 @@ int runRenderer(const ObjParser& parser, const std::string& windowTitle) {
     }
 
     Mesh mesh(parser.vertices, parser.edges);
-    Shader shader("shaders/advanced/vertex_shader.glsl", "shaders/advanced/fragment_shader.glsl");
+    Shader shader("gpu_wireframing/shaders/advanced/vertex_shader.glsl", "gpu_wireframing/shaders/advanced/fragment_shader.glsl");
 
     ModelMatrix modelMatrix;
     modelMatrix.setTranslation(MiniGLM::vec3(0.0f, 0.0f, 0.0f));
