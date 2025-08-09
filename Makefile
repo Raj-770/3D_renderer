@@ -8,7 +8,7 @@ BUILD_DIR = build
 all:
 	@echo "Building using CMake..."
 	@mkdir -p $(BUILD_DIR)
-	@cd $(BUILD_DIR) && cmake .. 
+	@cd $(BUILD_DIR) && cmake ../gpu_wireframing
 	@cd $(BUILD_DIR) && make
 	@cp $(BUILD_DIR)/$(TARGET) .
 
