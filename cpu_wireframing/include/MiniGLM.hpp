@@ -4,6 +4,7 @@
 
 namespace MiniGLM {
 
+struct ivec2;
 struct vec2;
 struct vec3;
 struct vec4;
@@ -48,6 +49,37 @@ inline vec2 normalize(const vec2& v) {
     if (len == 0.0f) return vec2(0.0f);
     return v / len;
 }
+
+struct ivec2 {
+    int x, y;
+
+    ivec2() : x(0), y(0) {}
+    ivec2(int v) : x(v), y(v) {}
+    ivec2(int x_, int y_) : x(x_), y(y_) {}
+
+    int& operator[](int i) { assert(i>=0 && i<2); return (&x)[i]; }
+    const int& operator[](int i) const { assert(i>=0 && i<2); return (&x)[i]; }
+
+    ivec2 operator+(const ivec2& r) const { return ivec2(x + r.x, y + r.y); }
+    ivec2 operator-(const ivec2& r) const { return ivec2(x - r.x, y - r.y); }
+    ivec2 operator*(int s) const { return ivec2(x * s, y * s); }
+    ivec2 operator/(int s) const { return ivec2(x / s, y / s); }
+    ivec2& operator+=(const ivec2& r) { x += r.x; y += r.y; return *this; }
+    ivec2& operator-=(const ivec2& r) { x -= r.x; y -= r.y; return *this; }
+    ivec2& operator*=(int s) { x *= s; y *= s; return *this; }
+    ivec2& operator/=(int s) { x /= s; y /= s; return *this; }
+};
+
+// Scalar on left
+inline ivec2 operator*(int s, const ivec2& v) { return v * s; }
+
+// Utility functions
+inline int dot(const ivec2& a, const ivec2& b) { return a.x * b.x + a.y * b.y; }
+inline int lengthSq(const ivec2& v) { return dot(v, v); }
+inline int manhattan(const ivec2& v) { return std::abs(v.x) + std::abs(v.y); }
+inline bool operator==(const ivec2& a, const ivec2& b) { return a.x == b.x && a.y == b.y; }
+inline bool operator!=(const ivec2& a, const ivec2& b) { return !(a == b); }
+
 
 
 struct vec3 {
