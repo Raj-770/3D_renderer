@@ -4,7 +4,9 @@
 
 namespace MiniGLM {
 
+struct vec2;
 struct vec3;
+struct vec4;
 struct mat4;
 
 constexpr float pi = 3.14159265358979323846f;
@@ -12,6 +14,41 @@ constexpr float pi = 3.14159265358979323846f;
 inline float radians(float deg) {
     return deg * (pi / 180.0f);
 }
+
+struct vec2 {
+    float x, y;
+
+    vec2() : x(0), y(0) {}
+    vec2(float v) : x(v), y(v) {}
+    vec2(float x_, float y_) : x(x_), y(y_) {}
+
+    float& operator[](int i) { assert(i>=0 && i<2); return (&x)[i]; }
+    const float& operator[](int i) const { assert(i>=0 && i<2); return (&x)[i]; }
+
+    vec2 operator+(const vec2& r) const { return vec2(x+r.x, y+r.y); }
+    vec2 operator-(const vec2& r) const { return vec2(x-r.x, y-r.y); }
+    vec2 operator*(float s) const { return vec2(x*s, y*s); }
+    vec2 operator/(float s) const { return vec2(x/s, y/s); }
+    vec2& operator+=(const vec2& r){ x+=r.x; y+=r.y; return *this; }
+    vec2& operator-=(const vec2& r){ x-=r.x; y-=r.y; return *this; }
+    vec2& operator*=(float s){ x*=s; y*=s; return *this; }
+    vec2& operator/=(float s){ x/=s; y/=s; return *this; }
+};
+
+inline vec2 operator*(float s, const vec2& v) { return v*s; }
+
+inline float dot(const vec2& a, const vec2& b) { return a.x*b.x + a.y*b.y; }
+
+inline float length(const vec2& v) {
+    return std::sqrt(dot(v, v));
+}
+
+inline vec2 normalize(const vec2& v) {
+    float len = length(v);
+    if (len == 0.0f) return vec2(0.0f);
+    return v / len;
+}
+
 
 struct vec3 {
     float x, y, z;
@@ -54,6 +91,44 @@ inline vec3 normalize(const vec3& v) {
     if (len == 0.0f) return vec3(0.0f);
     return v / len;
 }
+
+struct vec4 {
+    float x, y, z, w;
+
+    vec4() : x(0), y(0), z(0), w(0) {}
+    vec4(float v) : x(v), y(v), z(v), w(v) {}
+    vec4(float x_, float y_, float z_, float w_) : x(x_), y(y_), z(z_), w(w_) {}
+    vec4(const vec3& v, float w_) : x(v.x), y(v.y), z(v.z), w(w_) {}
+
+    float& operator[](int i) { assert(i>=0 && i<4); return (&x)[i]; }
+    const float& operator[](int i) const { assert(i>=0 && i<4); return (&x)[i]; }
+
+    vec4 operator+(const vec4& r) const { return vec4(x+r.x, y+r.y, z+r.z, w+r.w); }
+    vec4 operator-(const vec4& r) const { return vec4(x-r.x, y-r.y, z-r.z, w-r.w); }
+    vec4 operator*(float s) const { return vec4(x*s, y*s, z*s, w*s); }
+    vec4 operator/(float s) const { return vec4(x/s, y/s, z/s, w/s); }
+    vec4& operator+=(const vec4& r){ x+=r.x; y+=r.y; z+=r.z; w+=r.w; return *this; }
+    vec4& operator-=(const vec4& r){ x-=r.x; y-=r.y; z-=r.z; w-=r.w; return *this; }
+    vec4& operator*=(float s){ x*=s; y*=s; z*=s; w*=s; return *this; }
+    vec4& operator/=(float s){ x/=s; y/=s; z/=s; w/=s; return *this; }
+    
+    vec3 xyz() const { return vec3(x, y, z); }
+};
+
+inline vec4 operator*(float s, const vec4& v) { return v*s; }
+
+inline float dot(const vec4& a, const vec4& b) { return a.x*b.x + a.y*b.y + a.z*b.z + a.w*b.w; }
+
+inline float length(const vec4& v) {
+    return std::sqrt(dot(v, v));
+}
+
+inline vec4 normalize(const vec4& v) {
+    float len = length(v);
+    if (len == 0.0f) return vec4(0.0f);
+    return v / len;
+}
+
 
 struct mat4 {
     float m[16];
@@ -139,6 +214,15 @@ struct mat4 {
         double z = double(at(0,2))*v.x + double(at(1,2))*v.y + double(at(2,2))*v.z;
         return vec3(static_cast<float>(x), static_cast<float>(y), static_cast<float>(z));
     }
+
+    vec4 operator*(const vec4& v) const {
+        double x = double(at(0,0))*v.x + double(at(1,0))*v.y + double(at(2,0))*v.z + double(at(3,0))*v.w;
+        double y = double(at(0,1))*v.x + double(at(1,1))*v.y + double(at(2,1))*v.z + double(at(3,1))*v.w;
+        double z = double(at(0,2))*v.x + double(at(1,2))*v.y + double(at(2,2))*v.z + double(at(3,2))*v.w;
+        double w = double(at(0,3))*v.x + double(at(1,3))*v.y + double(at(2,3))*v.z + double(at(3,3))*v.w;
+        return vec4(static_cast<float>(x), static_cast<float>(y), static_cast<float>(z), static_cast<float>(w));
+    }
+
 };
 
 inline mat4 translate(const mat4& m_in, const vec3& t) {
