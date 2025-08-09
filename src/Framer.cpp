@@ -60,12 +60,12 @@ int runRenderer(const ObjParser& parser, const std::string& windowTitle) {
     Shader shader("shaders/advanced/vertex_shader.glsl", "shaders/advanced/fragment_shader.glsl");
 
     ModelMatrix modelMatrix;
-    modelMatrix.setTranslation(glm::vec3(0.0f, 0.0f, 0.0f));
-    modelMatrix.setRotation(0.0f, glm::vec3(0,1,0));
-    modelMatrix.setScale(glm::vec3(0.1f,0.1f,0.1f));
+    modelMatrix.setTranslation(MiniGLM::vec3(0.0f, 0.0f, 0.0f));
+    modelMatrix.setRotation(0.0f, MiniGLM::vec3(0,1,0));
+    modelMatrix.setScale(MiniGLM::vec3(0.1f,0.1f,0.1f));
 
     ViewMatrix viewMatrix;
-    viewMatrix.setCamera(glm::vec3(0,0,10), glm::vec3(0,0,0), glm::vec3(0,1,0));
+    viewMatrix.setCamera(MiniGLM::vec3(0,0,10), MiniGLM::vec3(0,0,0), MiniGLM::vec3(0,1,0));
 
     InputHandler inputHandler(window, viewMatrix);
     inputHandler.registerCallbacks();

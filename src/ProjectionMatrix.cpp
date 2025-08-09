@@ -1,5 +1,5 @@
 #include "ProjectionMatrix.hpp"
-#include <glm/gtc/matrix_transform.hpp>
+
 
 /**
  * @brief Construct a new Projection Matrix:: Projection Matrix object
@@ -19,7 +19,7 @@ ProjectionMatrix::ProjectionMatrix()
  * @param farPlane Distance to the far clipping plane
  */
 void ProjectionMatrix::setPerspective(float fovDegrees, float aspect, float nearPlane, float farPlane) {
-    matrix_ = glm::perspective(glm::radians(fovDegrees), aspect, nearPlane, farPlane);
+    matrix_ = MiniGLM::perspective(MiniGLM::radians(fovDegrees), aspect, nearPlane, farPlane);
     type_ = Type::Perspective;
 }
 
@@ -34,16 +34,16 @@ void ProjectionMatrix::setPerspective(float fovDegrees, float aspect, float near
  * @param farPlane Far clipping plane
  */
 void ProjectionMatrix::setOrthographic(float left, float right, float bottom, float top, float nearPlane, float farPlane) {
-    matrix_ = glm::ortho(left, right, bottom, top, nearPlane, farPlane);
+    matrix_ = MiniGLM::ortho(left, right, bottom, top, nearPlane, farPlane);
     type_ = Type::Orthographic;
 }
 
 /**
  * @brief Getter for the current porjection matrix
  * 
- * @return glm::mat4 
+ * @return MiniGLMmat4 
  */
-glm::mat4 ProjectionMatrix::getMatrix() const {
+MiniGLM::mat4 ProjectionMatrix::getMatrix() const {
     return matrix_;
 }
 

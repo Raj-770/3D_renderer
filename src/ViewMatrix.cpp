@@ -1,6 +1,4 @@
 #include "ViewMatrix.hpp"
-#include <glm/gtc/matrix_transform.hpp>
-
 /**
  * @brief Construct a new View Matrix:: View Matrix object
  *        Manages camera postition, orientation and view matrix generation
@@ -22,7 +20,7 @@ ViewMatrix::ViewMatrix()
  * @param target Point the camera is looking at
  * @param up Up direction for the camera
  */
-void ViewMatrix::setCamera(const glm::vec3& position, const glm::vec3& target, const glm::vec3& up) {
+void ViewMatrix::setCamera(const MiniGLM::vec3& position, const MiniGLM::vec3& target, const MiniGLM::vec3& up) {
     position_ = position;
     target_ = target;
     up_ = up;
@@ -34,7 +32,7 @@ void ViewMatrix::setCamera(const glm::vec3& position, const glm::vec3& target, c
  * 
  * @param position 
  */
-void ViewMatrix::setPosition(const glm::vec3& position) {
+void ViewMatrix::setPosition(const MiniGLM::vec3& position) {
     position_ = position;
     dirty_ = true;
 }
@@ -44,7 +42,7 @@ void ViewMatrix::setPosition(const glm::vec3& position) {
  * 
  * @param target 
  */
-void ViewMatrix::setTarget(const glm::vec3& target) {
+void ViewMatrix::setTarget(const MiniGLM::vec3& target) {
     target_ = target;
     dirty_ = true;
 }
@@ -54,7 +52,7 @@ void ViewMatrix::setTarget(const glm::vec3& target) {
  * 
  * @param up 
  */
-void ViewMatrix::setUp(const glm::vec3& up) {
+void ViewMatrix::setUp(const MiniGLM::vec3& up) {
     up_ = up;
     dirty_ = true;
 }
@@ -62,16 +60,16 @@ void ViewMatrix::setUp(const glm::vec3& up) {
 /*
  * Getters for different camera variables
  */
-glm::vec3 ViewMatrix::getPosition() const { return position_; }
-glm::vec3 ViewMatrix::getTarget() const { return target_; }
-glm::vec3 ViewMatrix::getUp() const { return up_; }
+MiniGLM::vec3 ViewMatrix::getPosition() const { return position_; }
+MiniGLM::vec3 ViewMatrix::getTarget() const { return target_; }
+MiniGLM::vec3 ViewMatrix::getUp() const { return up_; }
 
 /**
  * @brief Returns the camera's view matrix, recalculation if camera state has changes
  * 
- * @return glm::mat4 
+ * @return MiniGLMmat4 
  */
-glm::mat4 ViewMatrix::getViewMatrix() const {
+MiniGLM::mat4 ViewMatrix::getViewMatrix() const {
     if (dirty_) {
         updateViewMatrix();
         dirty_ = false;
@@ -82,8 +80,8 @@ glm::mat4 ViewMatrix::getViewMatrix() const {
 /**
  * @brief Recomputes the view matrix using lookAt with current camera parameters.
  *
- * Applies glm::lookAt to construct the view matrix from the camera's positon, target and up vector
+ * Applies MiniGLMlookAt to construct the view matrix from the camera's positon, target and up vector
  */
 void ViewMatrix::updateViewMatrix() const {
-    view_ = glm::lookAt(position_, target_, up_);
+    view_ = MiniGLM::lookAt(position_, target_, up_);
 }

@@ -9,7 +9,7 @@
  * @param vertices 
  * @param edges 
  */
-Mesh::Mesh(const std::vector<glm::vec3>& vertices, const std::vector<std::pair<int, int>>& edges)
+Mesh::Mesh(const std::vector<MiniGLM::vec3>& vertices, const std::vector<std::pair<int, int>>& edges)
     : VAO_(0), VBO_(0), EBO_(0), edgeCount_(0) {
     setupMesh(vertices, edges);
 }
@@ -92,7 +92,7 @@ Mesh& Mesh::operator=(Mesh&& other) noexcept {
  * @param vertices List of vertex positions
  * @param edges List of edges as index pairs into the vertex array.
  */
-void Mesh::setupMesh(const std::vector<glm::vec3>& vertices, const std::vector<std::pair<int, int>>& edges) {
+void Mesh::setupMesh(const std::vector<MiniGLM::vec3>& vertices, const std::vector<std::pair<int, int>>& edges) {
     std::vector<GLuint> edgeIndices;
     edgeIndices.reserve(edges.size() * 2);
     for (const auto& e : edges) {
@@ -108,10 +108,10 @@ void Mesh::setupMesh(const std::vector<glm::vec3>& vertices, const std::vector<s
     glBindVertexArray(VAO_);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO_);
-    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), vertices.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(MiniGLM::vec3), vertices.data(), GL_STATIC_DRAW);
 
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), reinterpret_cast<void*>(0));
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(MiniGLM::vec3), reinterpret_cast<void*>(0));
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO_);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, edgeIndices.size() * sizeof(GLuint), edgeIndices.data(), GL_STATIC_DRAW);

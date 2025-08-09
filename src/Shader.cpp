@@ -121,9 +121,9 @@ void Shader::setFloat(const std::string& name, float value) const {
  * @brief Sets a vec3 (3-component float) uniform in the shader program.
  * 
  * @param name Uniform variable name.
- * @param value glm::vec3 value to set.
+ * @param value MiniGLMvec3 value to set.
  */
-void Shader::setVec3(const std::string& name, const glm::vec3& value) const {
+void Shader::setVec3(const std::string& name, const MiniGLM::vec3& value) const {
     glUniform3fv(glGetUniformLocation(ID_, name.c_str()), 1, &value[0]);
 }
 
@@ -131,10 +131,10 @@ void Shader::setVec3(const std::string& name, const glm::vec3& value) const {
  * @brief Sets a mat4 (4x4 float matrix) uniform in the shader program.
  * 
  * @param name Uniform variable name.
- * @param mat glm::mat4 value to set.
+ * @param mat MiniGLMmat4 value to set.
  */
 
-void Shader::setMat4(const std::string& name, const glm::mat4& mat) const {
+void Shader::setMat4(const std::string& name, const MiniGLM::mat4& mat) const {
     glUniformMatrix4fv(glGetUniformLocation(ID_, name.c_str()), 1, GL_FALSE, &mat[0][0]);
 }
 

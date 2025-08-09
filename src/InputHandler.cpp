@@ -1,5 +1,4 @@
 #include "Framer.hpp"
-#include <glm/gtc/matrix_transform.hpp>
 
 InputHandler::InputHandler(GLFWwindow* window, ViewMatrix& viewMatrix)
     : window_(window), viewMatrix_(viewMatrix), lastX_(0), lastY_(0), leftMousePressed_(false)
@@ -52,11 +51,11 @@ void InputHandler::handleCursorPos(double xpos, double ypos) {
     if (pitch > 89.0f) pitch = 89.0f;
     if (pitch < -89.0f) pitch = -89.0f;
 
-    glm::vec3 pos;
-    pos.x = target.x + distance * cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-    pos.y = target.y + distance * sin(glm::radians(pitch));
-    pos.z = target.z + distance * sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-    viewMatrix_.setCamera(pos, target, glm::vec3(0, 1, 0));
+    MiniGLM::vec3 pos;
+    pos.x = target.x + distance * cos(MiniGLM::radians(yaw)) * cos(MiniGLM::radians(pitch));
+    pos.y = target.y + distance * sin(MiniGLM::radians(pitch));
+    pos.z = target.z + distance * sin(MiniGLM::radians(yaw)) * cos(MiniGLM ::radians(pitch));
+    viewMatrix_.setCamera(pos, target, MiniGLM::vec3(0, 1, 0));
 }
 
 void InputHandler::handleMouseButton(int button, int action, int /*mods*/) {
@@ -70,10 +69,10 @@ void InputHandler::handleScroll(double /*xoffset*/, double yoffset) {
     if (distance < 1.0f) distance = 1.0f;
     if (distance > 100.0f) distance = 100.0f;
 
-    float radYaw = glm::radians(yaw), radPitch = glm::radians(pitch);
-    glm::vec3 pos;
+    float radYaw = MiniGLM::radians(yaw), radPitch = MiniGLM::radians(pitch);
+    MiniGLM::vec3 pos;
     pos.x = target.x + distance * cos(radYaw) * cos(radPitch);
     pos.y = target.y + distance * sin(radPitch);
     pos.z = target.z + distance * sin(radYaw) * cos(radPitch);
-    viewMatrix_.setCamera(pos, target, glm::vec3(0, 1, 0));
+    viewMatrix_.setCamera(pos, target, MiniGLM::vec3(0, 1, 0));
 }

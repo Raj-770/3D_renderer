@@ -74,7 +74,7 @@ void Renderer::renderFrame() {
     shader_.setMat4("model", model_.getModelMatrix());
     shader_.setMat4("view", view_.getViewMatrix());
     shader_.setMat4("projection", projection_.getMatrix());
-    shader_.setVec3("color", glm::vec3(1.0f, 1.0f, 1.0f));
+    shader_.setVec3("color", MiniGLM::vec3(1.0f, 1.0f, 1.0f));
     mesh_.draw();
     glfwSwapBuffers(window_);
     glfwPollEvents();

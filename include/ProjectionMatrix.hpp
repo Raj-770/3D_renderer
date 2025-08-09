@@ -1,6 +1,6 @@
 #pragma once
 
-#include <glm/glm.hpp>
+#include "MiniGLM.hpp"
 
 class ProjectionMatrix {
 public:
@@ -15,11 +15,11 @@ public:
 
     void setOrthographic(float left, float right, float bottom, float top, float nearPlane, float farPlane);
 
-    glm::mat4 getMatrix() const;
+    MiniGLM::mat4 getMatrix() const;
 
     Type getType() const;
 
 private:
-    glm::mat4 matrix_;
+    MiniGLM::mat4 matrix_;
     Type type_;
 };

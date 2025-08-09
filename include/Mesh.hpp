@@ -2,12 +2,12 @@
 
 #include <vector>
 #include <utility>
-#include <glm/glm.hpp>
 #include <glad/glad.h>
+#include "MiniGLM.hpp"
 
 class Mesh {
 public:
-    Mesh(const std::vector<glm::vec3>& vertices, const std::vector<std::pair<int, int>>& edges);
+    Mesh(const std::vector<MiniGLM::vec3>& vertices, const std::vector<std::pair<int, int>>& edges);
 
     ~Mesh();
 
@@ -27,5 +27,5 @@ private:
     GLuint EBO_;
     GLsizei edgeCount_;
 
-    void setupMesh(const std::vector<glm::vec3>& vertices, const std::vector<std::pair<int, int>>& edges);
+    void setupMesh(const std::vector<MiniGLM::vec3>& vertices, const std::vector<std::pair<int, int>>& edges);
 };

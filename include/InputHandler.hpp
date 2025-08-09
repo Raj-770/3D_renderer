@@ -1,6 +1,7 @@
 #pragma once
 #include <GLFW/glfw3.h>
 #include "ViewMatrix.hpp"
+#include "MiniGLM.hpp"
 
 class InputHandler {
 public:
@@ -13,7 +14,7 @@ public:
     float yaw = 0.0f;
     float pitch = 0.0f;
     float distance = 10.0f;
-    glm::vec3 target = glm::vec3(0,0,0);
+    MiniGLM::vec3 target = MiniGLM::vec3(0,0,0);
 
 private:
     GLFWwindow* window_;

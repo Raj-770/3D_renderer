@@ -1,29 +1,29 @@
 #pragma once
 
-#include <glm/glm.hpp>
+#include "MiniGLM.hpp" 
 
 class ViewMatrix {
 public:
     ViewMatrix();
 
-    void setCamera(const glm::vec3& position, const glm::vec3& target, const glm::vec3& up);
+    void setCamera(const MiniGLM::vec3& position, const MiniGLM::vec3& target, const MiniGLM::vec3& up);
 
-    void setPosition(const glm::vec3& position);
-    void setTarget(const glm::vec3& target);
-    void setUp(const glm::vec3& up);
+    void setPosition(const MiniGLM::vec3& position);
+    void setTarget(const MiniGLM::vec3& target);
+    void setUp(const MiniGLM::vec3& up);
 
-    glm::vec3 getPosition() const;
-    glm::vec3 getTarget() const;
-    glm::vec3 getUp() const;
+    MiniGLM::vec3 getPosition() const;
+    MiniGLM::vec3 getTarget() const;
+    MiniGLM::vec3 getUp() const;
 
-    glm::mat4 getViewMatrix() const;
+    MiniGLM::mat4 getViewMatrix() const;
 
 private:
-    glm::vec3 position_;
-    glm::vec3 target_;
-    glm::vec3 up_;
+    MiniGLM::vec3 position_;
+    MiniGLM::vec3 target_;
+    MiniGLM::vec3 up_;
 
-    mutable glm::mat4 view_; 
+    mutable MiniGLM::mat4 view_; 
     mutable bool dirty_;
 
     void updateViewMatrix() const;

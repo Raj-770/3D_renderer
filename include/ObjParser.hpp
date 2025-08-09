@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 #include <utility>
-#include <glm/glm.hpp>
+#include "MiniGLM.hpp"
 
 struct Face {
     std::vector<int> vertex_indices;
@@ -11,7 +11,7 @@ struct Face {
 
 class ObjParser {
 public:
-    std::vector<glm::vec3> vertices;
+    std::vector<MiniGLM::vec3> vertices;
     std::vector<Face> faces;
     std::vector<std::pair<int, int>> edges;
 

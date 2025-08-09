@@ -1,6 +1,4 @@
 #include "ModelMatrix.hpp"
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/constants.hpp>
 
 /**
  * @brief Construct a new Model Matrix:: Model Matrix object which Handles transformation and model matrix genertion for 3d models.
@@ -17,7 +15,7 @@ ModelMatrix::ModelMatrix()
  * 
  * @param translation New translation vector (position in world space)
  */
-void ModelMatrix::setTranslation(const glm::vec3& translation) {
+void ModelMatrix::setTranslation(const MiniGLM::vec3& translation) {
     translation_ = translation;
     dirty_ = true;
 }
@@ -28,7 +26,7 @@ void ModelMatrix::setTranslation(const glm::vec3& translation) {
  * @param angleDegrees Rotation angle in degrees.
  * @param axis Axis to rotate around (must be normalized)
  */
-void ModelMatrix::setRotation(float angleDegrees, const glm::vec3& axis) {
+void ModelMatrix::setRotation(float angleDegrees, const MiniGLM::vec3& axis) {
     rotationAngle_ = angleDegrees;
     rotationAxis_ = axis;
     dirty_ = true;
@@ -39,7 +37,7 @@ void ModelMatrix::setRotation(float angleDegrees, const glm::vec3& axis) {
  * 
  * @param scale New scale fractors for x, y, z axes
  */
-void ModelMatrix::setScale(const glm::vec3& scale) {
+void ModelMatrix::setScale(const MiniGLM::vec3& scale) {
     scale_ = scale;
     dirty_ = true;
 }
@@ -47,9 +45,9 @@ void ModelMatrix::setScale(const glm::vec3& scale) {
 /**
  * @brief Returns the composed model matrix after applying translation, rotation, and scale
  *        Updates the matrix if any transformation has changed since last computation.
- * @return glm::mat4 
+ * @return MiniGLMmat4 
  */
-glm::mat4 ModelMatrix::getModelMatrix() const {
+MiniGLM::mat4 ModelMatrix::getModelMatrix() const {
     if (dirty_) {
         updateModelMatrix();
         dirty_ = false;
@@ -63,9 +61,9 @@ glm::mat4 ModelMatrix::getModelMatrix() const {
  * 
  */
 void ModelMatrix::updateModelMatrix() const {
-    glm::mat4 mat = glm::mat4(1.0f);
-    mat = glm::translate(mat, translation_);
-    mat = glm::rotate(mat, glm::radians(rotationAngle_), rotationAxis_);
-    mat = glm::scale(mat, scale_);
+    MiniGLM::mat4 mat = MiniGLM::mat4(1.0f);
+    mat = MiniGLM::translate(mat, translation_);
+    mat = MiniGLM::rotate(mat, MiniGLM::radians(rotationAngle_), rotationAxis_);
+    mat = MiniGLM::scale(mat, scale_);
     model_ = mat;
 }
