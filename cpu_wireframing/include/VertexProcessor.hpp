@@ -1,32 +1,22 @@
 #pragma once
 
 #include <vector>
-#include "MiniGLM.hpp"
-#include "ModelMatrix.hpp"
-#include "ViewMatrix.hpp"
-#include "ProjectionMatrix.hpp"
+#include "MiniGLM.hpp" // Your replacement for GLM
 
 class VertexProcessor {
 public:
-    VertexProcessor();
-    
-    void setMatrices(const ModelMatrix& model, const ViewMatrix& view, const ProjectionMatrix& projection);
-    
+    VertexProcessor(const MiniGLM::mat4& model, const MiniGLM::mat4& view, const MiniGLM::mat4& projection);
+
+    // Set/Update transformation matrices as needed
+    void setModelMatrix(const MiniGLM::mat4& model);
+    void setViewMatrix(const MiniGLM::mat4& view);
+    void setProjectionMatrix(const MiniGLM::mat4& projection);
+
+    // Transform a batch of vertices (vec3) to post-projection space
     std::vector<MiniGLM::vec4> transformVertices(const std::vector<MiniGLM::vec3>& vertices) const;
-    
-    std::vector<MiniGLM::vec3> clipToNDC(const std::vector<MiniGLM::vec4>& clipVertices) const;
-    
-    std::vector<MiniGLM::vec2> ndcToScreen(const std::vector<MiniGLM::vec3>& ndcVertices, int screenWidth, int screenHeight) const;
-    
-    std::vector<MiniGLM::vec2> processVertices(const std::vector<MiniGLM::vec3>& vertices, int screenWidth, int screenHeight) const;
-    
-    MiniGLM::mat4 getMVPMatrix() const;
-    
-    bool isReady() const;
 
 private:
-    MiniGLM::mat4 mvpMatrix_;
-    bool matricesSet_;
-    
-    void updateMVPMatrix();
+    MiniGLM::mat4 model_;
+    MiniGLM::mat4 view_;
+    MiniGLM::mat4 projection_;
 };
