@@ -6,6 +6,7 @@
 #include "VertexProcessor.hpp"
 #include "ScreenMapper.hpp"
 #include "Rasterizer.hpp"
+#include "InputHandler.hpp"
 #include "MiniFB.h"
 
 constexpr int WINDOW_WIDTH = 1200;
@@ -58,8 +59,23 @@ int main(int argc, char **argv) {
         return 1;
     }
 
+    InputHandler input;
+
     // Main loop
     while (mfb_wait_sync(window)) {
+
+        bool changed = input.update(window);
+
+        // Mouse scroll zoom:
+        if (changed) {
+            float scrollDelta = input.getScrollY();
+            if (scrollDelta != 0.0f) {
+                cam_dist *= std::pow(0.9f, scrollDelta);
+                eye = center + MiniGLM::vec3(0, 0, cam_dist);
+                view = MiniGLM::lookAt(eye, center, MiniGLM::vec3(0,1,0));
+                processor.setViewMatrix(view);
+            }
+        }
         raster.clear(Color(24, 24, 28)); // dark bg
 
         // Transform pipeline: 3D → clip → NDC → screen
