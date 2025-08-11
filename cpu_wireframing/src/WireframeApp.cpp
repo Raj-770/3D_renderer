@@ -1,0 +1,83 @@
+#include "WireframeApp.hpp"
+#include <algorithm>
+#include <cmath>
+
+MiniGLM::vec3 compute_center(const std::vector<MiniGLM::vec3>& vertices) {
+    MiniGLM::vec3 minPos(1e9), maxPos(-1e9);
+    for(const auto& v : vertices) {
+        minPos.x = std::min(minPos.x, v.x);
+        minPos.y = std::min(minPos.y, v.y);
+        minPos.z = std::min(minPos.z, v.z);
+        maxPos.x = std::max(maxPos.x, v.x);
+        maxPos.y = std::max(maxPos.y, v.y);
+        maxPos.z = std::max(maxPos.z, v.z);
+    }
+    return (minPos + maxPos) * 0.5f;
+}
+
+WireframeApp::WireframeApp(
+    const std::vector<MiniGLM::vec3>& vertices,
+    const std::vector<std::pair<int, int>>& edges,
+    int windowWidth,
+    int windowHeight)
+: windowWidth(windowWidth),
+  windowHeight(windowHeight),
+  cam_dist(50.0f),
+  processor(MiniGLM::mat4::identity(), MiniGLM::mat4::identity(), MiniGLM::mat4::identity()),
+  mapper(windowWidth, windowHeight),
+  raster(windowWidth, windowHeight),
+  pixelBuffer(windowWidth * windowHeight, 0),
+  vertices(vertices),
+  edges(edges)
+
+{
+    center = compute_center(vertices);
+    eye = center + MiniGLM::vec3(0, 0, cam_dist);
+    model = MiniGLM::mat4::identity();
+    view = MiniGLM::lookAt(eye, center, MiniGLM::vec3(0,1,0));
+    proj = MiniGLM::perspective(MiniGLM::radians(60.0f), float(windowWidth)/windowHeight, 0.01f, 100.0f);
+
+    processor.setModelMatrix(model);
+    processor.setViewMatrix(view);
+    processor.setProjectionMatrix(proj);
+}
+
+void WireframeApp::run() {
+    struct mfb_window* window = mfb_open("CPU Wireframe", windowWidth, windowHeight);
+    if (!window) {
+        fprintf(stderr, "Could not create MiniFB window.\n");
+        return;
+    }
+
+    while (mfb_wait_sync(window)) {
+        bool changed = input.update(window);
+        if (changed) {
+            float scrollDelta = input.getScrollY();
+            if (scrollDelta != 0.0f) {
+                cam_dist *= std::pow(0.9f, scrollDelta);
+                eye = center + MiniGLM::vec3(0, 0, cam_dist);
+                view = MiniGLM::lookAt(eye, center, MiniGLM::vec3(0,1,0));
+                processor.setViewMatrix(view);
+            }
+        }
+        raster.clear(Color(24,24,28));
+
+        auto clip_space = processor.transformVertices(vertices);
+        auto screen_pts = mapper.mapToScreen(clip_space);
+
+        Color white(255,255,255);
+        for(const auto& edge : edges) {
+            raster.drawLine(screen_pts[edge.first], screen_pts[edge.second], white);
+        }
+
+        const auto& buf = raster.getBuffer();
+        for(size_t i=0; i<buf.size(); ++i) {
+            const Color& c = buf[i];
+            pixelBuffer[i] = (0xFF << 24) | (c.r << 16) | (c.g << 8) | c.b;
+        }
+
+        mfb_update(window, pixelBuffer.data());
+    }
+
+    mfb_close(window);
+}
