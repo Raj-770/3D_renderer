@@ -48,7 +48,7 @@ void WireframeApp::run() {
         fprintf(stderr, "Could not create MiniFB window.\n");
         return;
     }
-
+    static float yaw = 0.0f, pitch = 0.0f;
     while (mfb_wait_sync(window)) {
         bool changed = input.update(window);
         if (changed) {
@@ -60,6 +60,25 @@ void WireframeApp::run() {
                 processor.setViewMatrix(view);
             }
         }
+
+        // Rotation logic (simple orbital camera example)
+        if (input.isRotating()) {
+            yaw   += input.getDeltaX() * 0.3f;     // Sensitivity factor
+            pitch += input.getDeltaY() * 0.3f;
+            pitch = std::clamp(pitch, -89.0f, 89.0f);
+        }
+        // Convert yaw/pitch to camera position (use polar coordinates)
+        float radYaw = MiniGLM::radians(yaw);
+        float radPitch = MiniGLM::radians(pitch);
+        MiniGLM::vec3 camDir = {
+            std::cos(radPitch) * std::sin(radYaw),
+            std::sin(radPitch),
+            std::cos(radPitch) * std::cos(radYaw)
+        };
+        eye = center + camDir * cam_dist;
+        view = MiniGLM::lookAt(eye, center, MiniGLM::vec3(0,1,0));
+        processor.setViewMatrix(view);
+        
         raster.clear(Color(24,24,28));
 
         auto clip_space = processor.transformVertices(vertices);
