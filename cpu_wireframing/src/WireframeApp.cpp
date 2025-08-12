@@ -1,6 +1,8 @@
 #include "WireframeApp.hpp"
 #include <algorithm>
 #include <cmath>
+#include <thread>
+#include <vector>
 
 MiniGLM::vec3 compute_center(const std::vector<MiniGLM::vec3>& vertices) {
     MiniGLM::vec3 minPos(1e9), maxPos(-1e9);
@@ -87,9 +89,23 @@ void WireframeApp::run() {
         auto screen_pts = mapper.mapToScreen(clip_space);
 
         Color white(255,255,255);
-        for(const auto& edge : edges) {
-            raster.drawLine(screen_pts[edge.first], screen_pts[edge.second], white);
+        size_t numThreads = std::thread::hardware_concurrency();
+        if (numThreads == 0) numThreads = 4; // Fallback
+
+        std::vector<std::thread> threads;
+        size_t edgesPerThread = edges.size() / numThreads;
+
+        for (size_t t = 0; t < numThreads; ++t) {
+            size_t start = t * edgesPerThread;
+            size_t end = (t == numThreads - 1) ? edges.size() : (start + edgesPerThread);
+        
+            threads.emplace_back([&, start, end]() {
+                for (size_t i = start; i < end; ++i) {
+                    raster.drawLine(screen_pts[edges[i].first], screen_pts[edges[i].second], white);
+                }
+            });
         }
+        for (auto& th : threads) th.join();
 
         const auto& buf = raster.getBuffer();
         for(size_t i=0; i<buf.size(); ++i) {
