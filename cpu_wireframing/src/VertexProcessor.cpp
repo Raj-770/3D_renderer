@@ -1,4 +1,5 @@
 #include "VertexProcessor.hpp"
+#include <thread>
 
 /**
  * @brief Construct a VertexProcessor with given model, view, and projection matrix.
@@ -38,12 +39,25 @@ void VertexProcessor::setProjectionMatrix(const MiniGLM::mat4& projection) {
 std::vector<MiniGLM::vec4> VertexProcessor::transformVertices(
     const std::vector<MiniGLM::vec3>& vertices) const
 {
-    std::vector<MiniGLM::vec4> transformed;
-    transformed.reserve(vertices.size());
+    std::vector<MiniGLM::vec4> transformed(vertices.size());
     MiniGLM::mat4 mvp = projection_ * view_ * model_;
-    for(const auto& v : vertices) {
-        MiniGLM::vec4 v4 = MiniGLM::vec4(v, 1.0f);
-        transformed.push_back(mvp * v4);
+
+    const size_t numThreads = std::thread::hardware_concurrency();
+    std::vector<std::thread> threads(numThreads);
+
+    auto worker = [&](size_t start, size_t end) {
+        for (size_t i = start; i < end; ++i) {
+            transformed[i] = mvp * MiniGLM::vec4(vertices[i], 1.0f);
+        }
+    };
+
+    size_t chunkSize = vertices.size() / numThreads;
+    for (size_t t = 0; t < numThreads; ++t) {
+        size_t start = t * chunkSize;
+        size_t end = (t + 1 == numThreads) ? vertices.size() : start + chunkSize;
+        threads[t] = std::thread(worker, start, end);
     }
+    for (auto& th : threads) th.join();
+
     return transformed;
 }
