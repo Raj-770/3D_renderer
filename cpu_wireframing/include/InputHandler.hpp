@@ -6,7 +6,8 @@ class InputHandler {
 public:
     InputHandler();
 
-    bool update(struct mfb_window *window);
+    bool updateZoom(struct mfb_window *window);
+    void updateRotation(struct mfb_window *window);
 
     float getScrollY() const;
 

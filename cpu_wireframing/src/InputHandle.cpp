@@ -6,13 +6,19 @@ InputHandler::InputHandler()
       deltaX_(0.0f), deltaY_(0.0f), rotating_(false)
 {}
 
-bool InputHandler::update(struct mfb_window *window) {
+bool InputHandler::updateZoom(struct mfb_window *window) {
     bool changed = false;
-
+    
     float tempScroll = mfb_get_mouse_scroll_y(window);
-    scrollY_ = tempScroll;
-    if (tempScroll != 0.0f)
+
+    if (tempScroll != scrollY_) {
+        scrollY_ = tempScroll;
         changed = true;
+    }
+    return changed;
+}
+
+void InputHandler::updateRotation(struct mfb_window *window) {
 
     const uint8_t *buttons = mfb_get_mouse_button_buffer(window);
     bool rightDown = (buttons[1] == 1);
@@ -32,8 +38,6 @@ bool InputHandler::update(struct mfb_window *window) {
             deltaY_ = float(mouseY - lastMouseY_);
             lastMouseX_ = mouseX;
             lastMouseY_ = mouseY;
-            if (deltaX_ != 0.0f || deltaY_ != 0.0f)
-                changed = true;
         }
     } else {
         rotating_ = false;
@@ -41,7 +45,6 @@ bool InputHandler::update(struct mfb_window *window) {
         deltaY_ = 0.0f;
     }
 
-    return changed;
 }
 
 float InputHandler::getScrollY() const { return scrollY_; }

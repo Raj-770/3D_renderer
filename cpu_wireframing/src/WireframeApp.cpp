@@ -50,8 +50,9 @@ void WireframeApp::run() {
     }
     static float yaw = 0.0f, pitch = 0.0f;
     while (mfb_wait_sync(window)) {
-        bool changed = input.update(window);
-        if (changed) {
+        input.updateRotation(window);
+        bool changedScroll = input.updateZoom(window);
+        if (changedScroll) {
             float scrollDelta = input.getScrollY();
             if (scrollDelta != 0.0f) {
                 cam_dist *= std::pow(0.9f, scrollDelta);
@@ -59,6 +60,7 @@ void WireframeApp::run() {
                 view = MiniGLM::lookAt(eye, center, MiniGLM::vec3(0,1,0));
                 processor.setViewMatrix(view);
             }
+
         }
 
         // Rotation logic (simple orbital camera example)
