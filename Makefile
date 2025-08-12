@@ -1,6 +1,7 @@
 # Makefile for WireframeRenderer project
 
-TARGET_CPU = cpu_wireframe
+TARGET_CPU_1 = render-gui
+TARGET_CPU_2 = render-to-file
 TARGET_GPU = gpu_wireframe
 BUILD_DIR_CPU = build_cpu_wireframe
 BUILD_DIR_GPU = build_gpu_wireframe
@@ -12,7 +13,8 @@ all:
 	@mkdir -p $(BUILD_DIR_CPU)
 	@cd $(BUILD_DIR_CPU) && cmake ../cpu_wireframing
 	@cd $(BUILD_DIR_CPU) && make
-	@cp $(BUILD_DIR_CPU)/$(TARGET_CPU) .
+	@cp $(BUILD_DIR_CPU)/$(TARGET_CPU_1) .
+	@cp $(BUILD_DIR_CPU)/$(TARGET_CPU_2) .
 
 $(TARGET_CPU): all
 
@@ -31,7 +33,8 @@ clean:
 
 fclean: clean
 	@echo "Removing executable..."
-	@rm -f $(TARGET_CPU)
+	@rm -f $(TARGET_CPU_1)
+	@rm -f $(TARGET_CPU_2)
 	@rm -f $(TARGET_GPU)
 
 re: fclean all
