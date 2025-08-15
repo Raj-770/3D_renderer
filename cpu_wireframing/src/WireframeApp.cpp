@@ -30,8 +30,9 @@ WireframeApp::WireframeApp(
   raster(windowWidth, windowHeight),
   pixelBuffer(windowWidth * windowHeight, 0),
   vertices(vertices),
-  edges(edges)
-
+  edges(edges),
+  nearClipper(Clipper(0.01f)),
+screenClipper(Clipper(0, 0, windowWidth - 1, windowHeight - 1))
 {
     center = compute_center(vertices);
     eye = center + MiniGLM::vec3(0, 0, cam_dist);
@@ -42,6 +43,8 @@ WireframeApp::WireframeApp(
     processor.setModelMatrix(model);
     processor.setViewMatrix(view);
     processor.setProjectionMatrix(proj);
+
+    
 }
 
 void WireframeApp::run() {
@@ -101,7 +104,35 @@ void WireframeApp::run() {
         
             threads.emplace_back([&, start, end]() {
                 for (size_t i = start; i < end; ++i) {
-                    raster.drawLine(screen_pts[edges[i].first], screen_pts[edges[i].second], white);
+                    // Get clip space vertices BEFORE screen mapping
+            MiniGLM::vec4 clipV0 = clip_space[edges[i].first];
+            MiniGLM::vec4 clipV1 = clip_space[edges[i].second];
+            
+            // First: Clip against near plane in 3D
+            if (!nearClipper.clipLineNearPlane(clipV0, clipV1)) {
+                continue; // Line completely behind near plane
+            }
+            
+            // Convert clipped 3D points to screen space
+            MiniGLM::ivec2 p0, p1;
+            
+            // Perspective division and screen mapping for p0
+            float ndc_x0 = clipV0.x / clipV0.w;
+            float ndc_y0 = clipV0.y / clipV0.w;
+            p0.x = static_cast<int>((ndc_x0 * 0.5f + 0.5f) * windowWidth);
+            p0.y = static_cast<int>((1.0f - (ndc_y0 * 0.5f + 0.5f)) * windowHeight);
+            
+            // Perspective division and screen mapping for p1  
+            float ndc_x1 = clipV1.x / clipV1.w;
+            float ndc_y1 = clipV1.y / clipV1.w;
+            p1.x = static_cast<int>((ndc_x1 * 0.5f + 0.5f) * windowWidth);
+            p1.y = static_cast<int>((1.0f - (ndc_y1 * 0.5f + 0.5f)) * windowHeight);
+            
+            // Second: Clip against screen bounds in 2D
+            if (screenClipper.clipLine(p0, p1)) {
+                raster.drawLine(p0, p1, white);
+            }
+
                 }
             });
         }

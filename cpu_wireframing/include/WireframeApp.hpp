@@ -8,6 +8,8 @@
 #include <InputHandler.hpp>
 #include <MiniFB.h>
 #include "ObjParser.hpp"
+#include "Clipper.hpp"
+
 
 class WireframeApp {
 public:
@@ -24,6 +26,7 @@ private:
     float cam_dist;
     MiniGLM::vec3 eye;
     MiniGLM::mat4 model, view, proj;
+    
 
     VertexProcessor processor;
     ScreenMapper mapper;
@@ -33,6 +36,10 @@ private:
 
     std::vector<MiniGLM::vec3> vertices;
     std::vector<std::pair<int, int>> edges;
+
+    Clipper nearClipper;
+    Clipper screenClipper;
+    
 
     void computeCenter();
 };

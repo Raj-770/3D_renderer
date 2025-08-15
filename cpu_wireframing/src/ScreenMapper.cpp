@@ -33,9 +33,20 @@ std::vector<MiniGLM::ivec2> ScreenMapper::mapToScreen(const std::vector<MiniGLM:
 {
     std::vector<MiniGLM::ivec2> screenVerts;
     screenVerts.reserve(clipSpaceVertices.size());
-    for(const auto& v : clipSpaceVertices) {
+
+    constexpr float epsilon = 1e-4f;
+    for (const auto& v : clipSpaceVertices) {
+        if (v.w < epsilon || !std::isfinite(v.w)) {
+            continue;
+        }
+
         float ndc_x = v.x / v.w;
         float ndc_y = v.y / v.w;
+
+        if (std::abs(ndc_x) > 1.f || std::abs(ndc_y) > 1.f) {
+            continue;
+        }
+
         int px = static_cast<int>((ndc_x * 0.5f + 0.5f) * screenWidth_);
         int py = static_cast<int>((1.0f - (ndc_y * 0.5f + 0.5f)) * screenHeight_);
 
@@ -44,5 +55,7 @@ std::vector<MiniGLM::ivec2> ScreenMapper::mapToScreen(const std::vector<MiniGLM:
 
         screenVerts.emplace_back(MiniGLM::ivec2(px, py));
     }
+
     return screenVerts;
 }
+
