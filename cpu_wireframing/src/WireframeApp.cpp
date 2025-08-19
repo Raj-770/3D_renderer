@@ -39,20 +39,27 @@ void WireframeApp::run()
 
     static float yaw = 0.0f, pitch = 0.0f;
     static float yawVel = 0.0f, pitchVel = 0.0f;
+    static float cam_dist = 30.0f;
+    static float zoomVel = 0.0f;
 
     while (mfb_wait_sync(window))
     {
-        handleInput(window, yawVel, pitchVel);
+        handleInput(window, yawVel, pitchVel, zoomVel);
 
         yaw += yawVel;
         pitch += pitchVel;
         pitch = std::clamp(pitch, -89.0f, 89.0f);
 
-        float damping = 0.85f;
+        float damping = 0.70f;
         yawVel *= damping;
         pitchVel *= damping;
 
-        updateCamera(yaw, pitch);
+        cam_dist *= std::pow(0.9f, zoomVel);
+        zoomVel *= 0.70f;
+
+        cam_dist = std::clamp(cam_dist, 1.0f, 100.0f);
+
+        updateCamera(yaw, pitch, cam_dist);
 
         raster.clear(Color(24, 24, 28));
         auto clip_space = processor.transformVertices(vertices);
@@ -99,13 +106,18 @@ struct mfb_window* WireframeApp::initWindow(){
     return window;
 }
 
-void WireframeApp::handleInput(struct mfb_window* window, float& yawVel, float& pitchVel)
+void WireframeApp::handleInput(struct mfb_window* window, float& yawVel, float& pitchVel, float& zoomVel)
 {
     input.updateRotation(window);
     bool changedScroll = input.updateZoom(window);
 
-    if (changedScroll)
-        adjustZoom();
+    const float zoomSensitivity = 0.1f;
+   if (changedScroll) {
+        float scrollDelta = input.getScrollY();
+        if (scrollDelta != 0.0f) {
+            zoomVel += scrollDelta * zoomSensitivity;
+        }
+    }
 
     const float sensitivity = 0.1f;
     if (input.isRotating()) {
@@ -126,7 +138,7 @@ void WireframeApp::adjustZoom()
     }
 }
 
-void WireframeApp::updateCamera(float yaw, float pitch)
+void WireframeApp::updateCamera(float yaw, float pitch, float cam_dist)
 {
     float radYaw = MiniGLM::radians(yaw);
     float radPitch = MiniGLM::radians(pitch);

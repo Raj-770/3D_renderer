@@ -43,9 +43,9 @@ private:
 
     MiniGLM::vec3 computeCenter(const std::vector<MiniGLM::vec3> &vertices);
     struct mfb_window* initWindow();
-    void handleInput(struct mfb_window* window, float& yawVel, float& pitchVel);
+    void handleInput(struct mfb_window* window, float& yawVel, float& pitchVel, float& zoomVel);
     void adjustZoom();
-    void updateCamera(float yaw, float pitch);
+    void updateCamera(float yaw, float pitch, float cam_dist);
     void drawEdgesMultithreaded(const std::vector<MiniGLM::vec4>& clip_space);
     void drawEdgesInRange(const std::vector<MiniGLM::vec4>& clip_space, size_t start, size_t end, const Color& color, float near_epsilon, float ndc_limit);
     void updatePixelBuffer();
