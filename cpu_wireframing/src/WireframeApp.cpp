@@ -13,7 +13,6 @@ WireframeApp::WireframeApp(
       windowHeight(windowHeight),
       cam_dist(30.0f),
       processor(MiniGLM::mat4::identity(), MiniGLM::mat4::identity(), MiniGLM::mat4::identity()),
-      mapper(windowWidth, windowHeight),
       raster(windowWidth, windowHeight),
       pixelBuffer(windowWidth * windowHeight, 0),
       vertices(vertices),
@@ -63,7 +62,6 @@ void WireframeApp::run()
 
         raster.clear(Color(24, 24, 28));
         auto clip_space = processor.transformVertices(vertices);
-        auto screen_pts = mapper.mapToScreen(clip_space);
 
         drawEdgesMultithreaded(clip_space);
 

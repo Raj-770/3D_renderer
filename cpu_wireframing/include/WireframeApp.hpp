@@ -3,7 +3,6 @@
 #include <vector>
 #include <MiniGLM.hpp>
 #include <VertexProcessor.hpp>
-#include <ScreenMapper.hpp>
 #include <Rasterizer.hpp>
 #include <InputHandler.hpp>
 #include <MiniFB.h>
@@ -29,7 +28,6 @@ private:
     
 
     VertexProcessor processor;
-    ScreenMapper mapper;
     Rasterizer raster;
     InputHandler input;
     std::vector<uint32_t> pixelBuffer;
