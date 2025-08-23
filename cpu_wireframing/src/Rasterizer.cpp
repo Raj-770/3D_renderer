@@ -1,6 +1,8 @@
 #include "Rasterizer.hpp"
 #include <fstream>
 #include <algorithm>
+#include <cmath>
+
 
 /**
  * @brief Constructs a Rasterizer object for a given image width and height.
@@ -42,14 +44,24 @@ void Rasterizer::setPixel(int x, int y, const Color& color) {
         buffer_[y * width_ + x] = color;
 }
 
+inline float frac(float x) { return x - std::floor(x); }
+
+void Rasterizer::plotAA(int x, int y, const Color& color, float intensity) {
+    if (x >= 0 && x < width_ && y >= 0 && y < height_ && intensity > 0.0f) {
+        Color& dest = buffer_[y * width_ + x];
+        dest.r = static_cast<uint8_t>(color.r * intensity + dest.r * (1.0f - intensity));
+        dest.g = static_cast<uint8_t>(color.g * intensity + dest.g * (1.0f - intensity));
+        dest.b = static_cast<uint8_t>(color.b * intensity + dest.b * (1.0f - intensity));
+    }
+}
+
 /**
- * @brief Draws a line between two points using Bresenham's algorithm.
+ * @brief Draws an anti-aliased line between two points using Xiaolin Wu's algorithm.
  *
- * Implements Bresenham's line drawing algorithm, which efficiently determines
- * the raster pixels closest to a straight line between endpoints. The algorithm
- * swaps axes for steep lines, increments pixels along the major axis,
- * and sets pixel color using setPixel, ensuring continuous appearance
- * even for lines with arbitrary slope.
+ * This method renders a smooth line by blending pixel colors according to their proximity
+ * to the mathematically precise line path, greatly reducing staircase (aliasing) artifacts.
+ * It adapts automatically for steep lines by swapping axes, calculates fractional pixel
+ * coverage, and uses the plotAA helper for intensity-based color blending.
  *
  * @param p0 The starting point of the line (as integer pixel coordinates).
  * @param p1 The ending point of the line (as integer pixel coordinates).
@@ -58,33 +70,52 @@ void Rasterizer::setPixel(int x, int y, const Color& color) {
 void Rasterizer::drawLine(const MiniGLM::ivec2& p0, const MiniGLM::ivec2& p1, const Color& color) {
     int x0 = p0.x, y0 = p0.y;
     int x1 = p1.x, y1 = p1.y;
-
     bool steep = std::abs(y1 - y0) > std::abs(x1 - x0);
+
     if (steep) {
-        std::swap(x0, y0);
-        std::swap(x1, y1);
+        std::swap(x0, y0); std::swap(x1, y1);
     }
     if (x0 > x1) {
-        std::swap(x0, x1);
-        std::swap(y0, y1);
+        std::swap(x0, x1); std::swap(y0, y1);
     }
 
-    int dx = x1 - x0;
-    int dy = std::abs(y1 - y0);
-    int err = dx / 2;
-    int ystep = (y0 < y1) ? 1 : -1;
-    int y = y0;
+    float dx = float(x1 - x0);
+    float dy = float(y1 - y0);
+    float gradient = dx == 0.0f ? 1.0f : dy / dx;
 
-    for (int x = x0; x <= x1; ++x) {
-        if (steep)
-            setPixel(y, x, color);
-        else
-            setPixel(x, y, color);
-        err -= dy;
-        if (err < 0) {
-            y += ystep;
-            err += dx;
+    int xEnd = x0;
+    float yEnd = y0 + gradient * (xEnd - x0);
+    int xPixel1 = xEnd;
+    int yPixel1 = int(yEnd);
+
+    if (steep) {
+        plotAA(yPixel1, xPixel1, color, 1 - frac(yEnd));
+        plotAA(yPixel1 + 1, xPixel1, color, frac(yEnd));
+    } else {
+        plotAA(xPixel1, yPixel1, color, 1 - frac(yEnd));
+        plotAA(xPixel1, yPixel1 + 1, color, frac(yEnd));
+    }
+    float y = yEnd + gradient;
+
+    for (int x = xPixel1 + 1; x < x1; ++x) {
+        int yPix = int(y);
+        if (steep) {
+            plotAA(yPix, x, color, 1 - frac(y));
+            plotAA(yPix + 1, x, color, frac(y));
+        } else {
+            plotAA(x, yPix, color, 1 - frac(y));
+            plotAA(x, yPix + 1, color, frac(y));
         }
+        y += gradient;
+    }
+
+    int xPixel2 = x1;
+    float yPixel2 = y1;
+    if (steep) {
+        plotAA(int(yPixel2), xPixel2, color, 1 - frac(yPixel2));
+        plotAA(int(yPixel2) + 1, xPixel2, color, frac(yPixel2));
+    } else {
+        plotAA(xPixel2, int(yPixel2), color, 1 - frac(yPixel2));
+        plotAA(xPixel2, int(yPixel2) + 1, color, frac(yPixel2));
     }
 }
-

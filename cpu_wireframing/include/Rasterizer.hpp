@@ -17,6 +17,8 @@ public:
 
     void drawLine(const MiniGLM::ivec2& p0, const MiniGLM::ivec2& p1, const Color& color);
 
+    void plotAA(int x, int y, const Color& color, float intensity);
+
     const std::vector<Color>& getBuffer() const { return buffer_; }
 
     int width() const { return width_; }
