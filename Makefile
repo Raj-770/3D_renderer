@@ -12,7 +12,7 @@ all:
 	@echo "Building using CMake..."
 	mkdir -p $(BUILD_DIR_CPU)
 	@git submodule update --init --recursive
-	@cd $(BUILD_DIR_CPU) && cmake ../cpu_wireframing
+	@cd $(BUILD_DIR_CPU) && cmake ..
 	@cd $(BUILD_DIR_CPU) && make
 	cp $(BUILD_DIR_CPU)/$(TARGET_CPU_1) .
 	cp $(BUILD_DIR_CPU)/$(TARGET_CPU_2) .
