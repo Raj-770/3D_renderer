@@ -8,6 +8,11 @@
 #include <MiniFB.h>
 #include "ObjParser.hpp"
 #include "Clipper.hpp"
+#include <condition_variable>
+#include <mutex>
+#include <queue>
+#include <atomic>
+#include <thread>
 
 
 class WireframeApp {
@@ -18,6 +23,8 @@ public:
                  int windowHeight);
 
     void run();
+
+    ~WireframeApp();
 
 private:
     int windowWidth, windowHeight;
@@ -37,6 +44,18 @@ private:
 
     Clipper nearClipper;
     Clipper screenClipper;
+
+    std::vector<std::thread> threadPool;
+    std::queue<std::pair<size_t, size_t>> workQueue;
+    std::mutex queueMutex;
+    std::condition_variable queueCV;
+    std::atomic<bool> quitFlag{false};
+    std::atomic<int> tasksPending{0};
+
+    std::vector<MiniGLM::vec4> workerClipSpace;
+    Color workerColor = Color(255, 255, 255);
+    float workerNearEpsilon = 1e-3f;
+    float workerNdcLimit = 100.0f;
 
 
     MiniGLM::vec3 computeCenter(const std::vector<MiniGLM::vec3> &vertices);

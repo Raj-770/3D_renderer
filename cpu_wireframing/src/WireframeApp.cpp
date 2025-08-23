@@ -1,7 +1,6 @@
 #include "WireframeApp.hpp"
 #include <algorithm>
 #include <cmath>
-#include <thread>
 #include <vector>
 
 WireframeApp::WireframeApp(
@@ -29,6 +28,42 @@ WireframeApp::WireframeApp(
     processor.setModelMatrix(model);
     processor.setViewMatrix(view);
     processor.setProjectionMatrix(proj);
+
+    size_t numThreads = std::thread::hardware_concurrency();
+    if (numThreads == 0) numThreads = 4;
+
+    // Start threads
+    for (size_t t = 0; t < numThreads; ++t) {
+        threadPool.emplace_back([this]() {
+            while (true) {
+                std::pair<size_t, size_t> task;
+                {
+                    std::unique_lock<std::mutex> lock(queueMutex);
+                    queueCV.wait(lock, [this] { 
+                        return !workQueue.empty() || quitFlag.load(); 
+                    });
+
+                    if (quitFlag.load()) break;
+
+                    // Pop work
+                    task = workQueue.front();
+                    workQueue.pop();
+                }
+                // Do the work, all parameters pre-set as member variables
+                this->drawEdgesInRange(
+                    workerClipSpace, 
+                    task.first, 
+                    task.second, 
+                    workerColor, 
+                    workerNearEpsilon, 
+                    workerNdcLimit
+                );
+                --tasksPending;
+            }
+        });
+    }
+
+
 }
 
 void WireframeApp::run()
@@ -150,29 +185,33 @@ void WireframeApp::updateCamera(float yaw, float pitch, float cam_dist)
     processor.setViewMatrix(view);
 }
 
-void WireframeApp::drawEdgesMultithreaded(const std::vector<MiniGLM::vec4>& clip_space)
-{
-    Color white(255, 255, 255);
-    size_t numThreads = std::thread::hardware_concurrency();
-    if (numThreads == 0) numThreads = 4;
-
-    std::vector<std::thread> threads;
+void WireframeApp::drawEdgesMultithreaded(const std::vector<MiniGLM::vec4>& clip_space) {
+    size_t numThreads = threadPool.size();
     size_t edgesPerThread = edges.size() / numThreads;
-    constexpr float near_epsilon = 1e-3f;
-    constexpr float ndc_limit = 100.0f;
 
-    for (size_t t = 0; t < numThreads; ++t)
+    // Store arguments for workers
+    workerClipSpace = clip_space;
+    workerColor = Color(255, 255, 255);
+    workerNearEpsilon = 1e-3f;
+    workerNdcLimit = 100.0f;
+    tasksPending = numThreads;
+
     {
-        size_t start = t * edgesPerThread;
-        size_t end = (t == numThreads - 1) ? edges.size() : (start + edgesPerThread);
-
-        threads.emplace_back([&, start, end]()
-        {
-            drawEdgesInRange(clip_space, start, end, white, near_epsilon, ndc_limit);
-        });
+        std::lock_guard<std::mutex> lock(queueMutex);
+        for (size_t t = 0; t < numThreads; ++t) {
+            size_t start = t * edgesPerThread;
+            size_t end = (t == numThreads - 1) ? edges.size() : (start + edgesPerThread);
+            workQueue.push({start, end});
+        }
     }
-    for (auto& th : threads) th.join();
+    queueCV.notify_all();
+
+    // Wait for all threads to finish their chunk
+    while (tasksPending > 0) {
+        std::this_thread::sleep_for(std::chrono::microseconds(50)); // Avoid harsh busy waiting
+    }
 }
+
 
 void WireframeApp::drawEdgesInRange(
     const std::vector<MiniGLM::vec4>& clip_space,
@@ -227,5 +266,13 @@ void WireframeApp::updatePixelBuffer()
     {
         const Color& c = buf[i];
         pixelBuffer[i] = (0xFF << 24) | (c.r << 16) | (c.g << 8) | c.b;
+    }
+}
+
+WireframeApp::~WireframeApp() {
+    quitFlag = true;
+    queueCV.notify_all();
+    for (auto& th : threadPool) {
+        if (th.joinable()) th.join();
     }
 }
