@@ -15,7 +15,7 @@ The core of the renderer is structured around several reusable C++ classes:
 - **MiniGLM:** Implements custom GLM-like functions and data structures used for storing data and performing mathematical operations needed by the renderer.
 - **Obj Parser:** Efficiently parses vertices and faces from OBJ files and create edges. It is optimized for minimal memory usage by storing only the essential data for wireframe rendering, while robust checks maintain data integrity.
 - **Vertex Processor:** Handles the Model-View transformation of all input vertices using composite model, view, and projection matrices. This module leverages multi-threading to accelerate computations and relies on well-structured matrix classes.
-- **Rasterizer:** Uses a high-performance, multi-threaded implementation of Bresenham’s line algorithm for drawing wireframe edges. The pixel buffer is allocated as a contiguous memory block to optimize cache usage and drawing speed.
+- **Rasterizer:** Uses a high-performance, multi-threaded implementation of Xiaolin Wu’s line algorithm for drawing wireframe edges. The pixel buffer is allocated as a contiguous memory block to optimize cache usage and drawing speed.
 
 
 ## 2. GUI Architecture
