@@ -38,5 +38,10 @@ fclean: clean
 	@rm -f $(TARGET_CPU_2)
 	@rm -f $(TARGET_GPU)
 
+format:
+	@command -v clang-format >/dev/null || { echo "clang-format not found"; exit 1; }
+	@find cpu_wireframing/src cpu_wireframing/include \( -name '.cpp' -o -name '.hpp' -o -name '*.h' \) | xargs clang-format -i
+	@find gpu_wireframing/src gpu_wireframing/include \( -name '.cpp' -o -name '.hpp' -o -name '*.h' \) | xargs clang-format -i
+
 re: fclean all
 	@echo "Remaking..."
