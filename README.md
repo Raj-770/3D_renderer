@@ -76,8 +76,7 @@ root/
 ## Dependencies
 
 - **CPU Version:**
-  - `stb_image_writer.h` (included): For image output.
-  - `minifb` (included or submodule): For window/framebuffer operations.
+  - `Qt6`
 - **GPU Version:**
   - OpenGL development libraries (platform-specific installation may be required).
 
