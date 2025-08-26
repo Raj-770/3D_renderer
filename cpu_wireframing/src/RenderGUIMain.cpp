@@ -1,6 +1,7 @@
 #include <iostream>
 #include "ObjParser.hpp"
 #include "WireframeApp.hpp"
+#include <QApplication>
 
 int main(int argc, char **argv) {
     if (argc != 2) {
@@ -17,7 +18,13 @@ int main(int argc, char **argv) {
               << parser.faces.size() << " faces with "
               << parser.edges.size() << " edges.\n";
 
-    WireframeApp app(parser.vertices, parser.edges, 1200, 800);
-    app.run();
-    return 0;
+    QApplication app(argc, argv);
+
+    WireframeApp window(parser.vertices, parser.edges, 1200, 800);
+
+    window.setWindowTitle("Wireframe Renderer");
+    
+    window.show();
+
+    return app.exec();
 }
