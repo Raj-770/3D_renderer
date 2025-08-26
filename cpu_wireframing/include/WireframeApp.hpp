@@ -39,7 +39,6 @@ private:
   uchar *m_frameBuffer;
   QImage *m_image;
   MiniGLM::vec3 center;
-  float cam_dist;
   MiniGLM::vec3 eye;
   MiniGLM::mat4 model, view, proj;
 
@@ -82,6 +81,4 @@ private:
   MiniGLM::vec3 computeCenter(const std::vector<MiniGLM::vec3> &vertices);
 
   void updateCameraQt();
-    
-  
 };

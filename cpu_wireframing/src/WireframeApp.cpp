@@ -4,20 +4,19 @@
 #include <QWheelEvent>
 #include <QtMath>
 #include <cstring>
-
+#include <iostream>
 
 WireframeApp::WireframeApp(const std::vector<MiniGLM::vec3> &vertices,
                            const std::vector<std::pair<int, int>> &edges,
                            int width, int height, QWidget *parent)
     : QWidget(parent), m_width(width), m_height(height), m_frameBuffer(nullptr),
-      cam_dist_(30.0f), m_image(nullptr),
+      m_image(nullptr), cam_dist_(30.0f),
       processor(MiniGLM::mat4::identity(), MiniGLM::mat4::identity(),
                 MiniGLM::mat4::identity()),
       raster(m_width, m_height), nearClipper(Clipper(0.01f)),
       screenClipper(Clipper(0, 0, m_width - 1, m_height - 1)),
       vertices(vertices), edges(edges) {
   allocateBuffer();
-  updateImage();
   center = computeCenter(vertices);
   eye = center + MiniGLM::vec3(0, 0, cam_dist_);
   model = MiniGLM::mat4::identity();
@@ -26,12 +25,11 @@ WireframeApp::WireframeApp(const std::vector<MiniGLM::vec3> &vertices,
                               float(m_width) / m_height, 0.01f, 100.0f);
 
   MiniGLM::vec3 dir = normalize(eye - center);
-pitch_ = std::asin(dir.y) * 180.0f / M_PI;
-yaw_ = std::atan2(dir.x, dir.z) * 180.0f / M_PI;
-cam_dist_ = length(eye - center);
+  pitch_ = std::asin(dir.y) * 180.0f / M_PI;
+  yaw_ = std::atan2(dir.x, dir.z) * 180.0f / M_PI;
+  cam_dist_ = length(eye - center);
 
   updateCameraQt();
-
 
   processor.setModelMatrix(model);
   processor.setViewMatrix(view);
@@ -179,28 +177,23 @@ void WireframeApp::closeEvent(QCloseEvent *event) {
 void WireframeApp::paintEvent(QPaintEvent * /*event*/) {
   QPainter painter(this);
   if (m_image)
-    painter.drawImage(0, 0, *m_image);
+    painter.drawImage(rect(), *m_image);
 }
 
-void WireframeApp::resizeEvent(QResizeEvent* event) {
-    m_width = event->size().width();
-    m_height = event->size().height();
-    freeBuffer();
-    allocateBuffer();
-    raster = Rasterizer(m_width, m_height);
-    updateImage();
+void WireframeApp::resizeEvent(QResizeEvent *event) {
+  m_width = event->size().width();
+  m_height = event->size().height();
+  freeBuffer();
+  allocateBuffer();
+  raster = Rasterizer(m_width, m_height);
 
-    proj = MiniGLM::perspective(
-        MiniGLM::radians(60.0f),
-        float(m_width) / float(m_height),
-        0.01f,
-        100.0f
-    );
-    processor.setProjectionMatrix(proj);
+  proj = MiniGLM::perspective(MiniGLM::radians(60.0f),
+                              float(m_width) / float(m_height), 0.01f, 100.0f);
+  processor.setProjectionMatrix(proj);
 
-    renderModel();
+  renderModel();
 
-    QWidget::resizeEvent(event);
+  QWidget::resizeEvent(event);
 }
 
 void WireframeApp::allocateBuffer() {
@@ -270,7 +263,7 @@ void WireframeApp::mouseMoveEvent(QMouseEvent *event) {
 
 void WireframeApp::wheelEvent(QWheelEvent *event) {
   float delta = event->angleDelta().y() / 120.0f; // one "tick": 120
-  float zoomSensitivity = 0.1f;
+  //   float zoomSensitivity = 0.1f;
   cam_dist_ *= std::pow(0.9f, delta);
 
   cam_dist_ = std::clamp(cam_dist_, 0.1f, 150.0f);
